@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Suite">
- <listeners>
-        <listener class-name="com.pluribus.vcf.helper.RetryListener"/>
-        <listener class-name="com.pluribus.vcf.helper.TestListener"/>
-  </listeners>
-  <test name="Test">
+<test name="Test">
     <!-- Mandatory parameters -->
     <parameter name="switchName" value="gui-spine1"></parameter>
     <parameter name="mgmtIp" value="10.9.21.60"></parameter>
@@ -22,8 +18,8 @@
     <parameter name="flowDuration" value = "5"></parameter>
     <parameter name="pcapToggleCount" value = "3"></parameter>
     <!-- VCF Manager parameters -->
-    <parameter name="hostFile" value="/src/test/resources/ans_hosts"></parameter>
-    <parameter name="csvFile" value="/src/test/resources/vrrp_l2.csv"></parameter>
+    <parameter name="hostFile" value="src/test/resources/ans_hosts"></parameter>
+    <parameter name="csvFile" value="src/test/resources/vrrp_l2.csv"></parameter>
        <!-- NOTE: Additional optional parameters are: 
     	<parameter name="dataNodeHost" value="10.9.8.85"></parameter>
     	<parameter name = "password" value="value_to_be_set_for_vcfc_instance"></parameter>

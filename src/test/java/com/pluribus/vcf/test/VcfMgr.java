@@ -36,7 +36,7 @@ public class VcfMgr extends TestSetup{
 	}
 	
 	@Parameters({"password"})
-    @Test(description = "Login to VCF as admin  and Change Password")
+    @Test(groups = {"smoke","regression"}, description = "Login to VCF as admin  and Change Password")
     public void loginAdmin(@Optional("test123")String password) {
         login.firstlogin(vcfUserName,password);
         login.waitForLogoutButton();
@@ -44,7 +44,7 @@ public class VcfMgr extends TestSetup{
     }
 	
 	 @Parameters({"password"})  
-	    @Test(dependsOnMethods = {"loginAdmin"},description = "Login to VCF as test123 After Password Change")
+	    @Test(groups = {"smoke","regression"},dependsOnMethods = {"loginAdmin"},description = "Login to VCF as test123 After Password Change")
 	    public void loginTest123(@Optional("test123")String password) {
 	        login.login(vcfUserName, password);
 	        login.waitForLogoutButton();
@@ -55,8 +55,32 @@ public class VcfMgr extends TestSetup{
 	        } catch (Exception e) {}
 	 	}
 	
+	
+/*
+	@Parameters({"switchName", "password"})
+	@Test(groups={"smoke","regression"},dependsOnMethods={"logintoVcfMgr"},description="Add seed switch")
+	public void addSeedSwitchTest(String switchName,@Optional("test123") String password) throws Exception {
+		if(vcfMgr1.addSeedSwitch(switchName,password)) {
+			com.jcabi.log.Logger.info("vcfMgraddSeedSwitch","Configured and verified seed switch addition");
+		} else {
+			com.jcabi.log.Logger.error("cfMgraddSeedSwitch","Seed switch configuration failed");
+		}
+	}
+
+	@Parameters({"vcfIp"})
+	@Test(groups={"smoke","regression"},dependsOnMethods={"loginTest123"},description="Cleanup existing ansible config")
+	public void cleanZtpTest(String vcfIp) throws Exception {
+		vcfMgr1.delAllSeedsVcfMgr();
+		if(vcfMgr1.terminateAndCleanZtp(vcfIp)) {
+			com.jcabi.log.Logger.info("vcfMgrconfig","Terminated previous instances of ansible and cleaned ZTP");
+		} else {
+			com.jcabi.log.Logger.error("vcfMgrconfig","Terminating prev instance failed");
+		}
+		//home1.gotoVCFMgr();
+	}
+*/	
 	@Parameters({"hostFile", "csvFile", "password"})
-	@Test(dependsOnMethods={"loginTest123"},description="Configure playbook 1")
+	@Test(groups={"smoke","regression"},dependsOnMethods={"loginTest123"},description="Configure playbook 1")
 	public void vcfMgrConfig1(String hostFile, String csvFile, @Optional("test123") String password) throws Exception {
 		File file1 = new File(hostFile);
 		int expNodeCount = 6;
@@ -70,5 +94,18 @@ public class VcfMgr extends TestSetup{
 			com.jcabi.log.Logger.error("vcfMgrconfig", "File doesn't exist");
 		}
 	}
-
+	/*
+	//SSH into server-ext-3a, invoke scrip
+	public void convTestScript(String serverName,String scriptName) {
+		Shell ss = new Shell.Verbose(
+	            new SSHByPassword(
+	            	serverName,
+	            	22,
+	                "root",
+	                "test123"
+	            )
+	        );
+		out1 = new Shell.Plain(ss).exec("cd /usr/test-scripts/pod/;");
+	}
+	*/
 }

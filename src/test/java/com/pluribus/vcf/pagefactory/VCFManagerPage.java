@@ -237,7 +237,6 @@ public class VCFManagerPage extends PageInfra {
 		retryingFindClick(driver.findElement(By.cssSelector(vrrpConfig)));
 		//driver.findElement(By.cssSelector(vrrpConfig)).click();
 		Thread.sleep(5000);
-		waitForElementToClick(By.id(csvUploadId),100);
 		element = driver.findElement(By.id(csvUploadId));
 		((RemoteWebElement) element).setFileDetector(new LocalFileDetector());
 		element.sendKeys(csvFile);
@@ -246,7 +245,7 @@ public class VCFManagerPage extends PageInfra {
 		nextButton.click();
 		Thread.sleep(2000);
 		i = 0;
-		while ((i<10) && (!isElementActive(closeButton))) {
+		while ((i<30) && (!isElementActive(closeButton))) {
 			Thread.sleep(100000);
 			if(isElementActive(closeButton)) break;
 			i++;
@@ -257,7 +256,6 @@ public class VCFManagerPage extends PageInfra {
 		driver.manage().timeouts().implicitlyWait(100, TimeUnit.SECONDS);
 		com.jcabi.log.Logger.info("playbookConfig","fabric Node Count:"+fabricNodeCount);
 		if(fabricNodeCount == expNodeCount) status = true;
-		
 		return status;
 	}
 	
