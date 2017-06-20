@@ -22,6 +22,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import com.pluribus.vcf.helper.PageInfra;
 import org.openqa.selenium.WebDriver;
@@ -62,6 +63,10 @@ public class VCFManagerPage extends PageInfra {
 	String confirmDelPopup = "div.inner-dialog-container";
 	String vrrpNextButton = "button.btn.btn-success[type=submit][ng-show]";
 	String fabricNameFieldSel = "input[class='form-control ng-pristine ng-untouched ng-valid ng-not-empty']";
+	String advancedButtonSel = "button.btn.btn-success[type='button']";
+	String gatewayIpSel = "input.form-control.ng-pristine.ng-untouched.ng-valid.ng-not-empty.ng-valid-required.ng-valid-pattern[value='10.9.9.1']";
+	String setupTabSel = "uib-tab-heading.ng-scope";
+	String toggle40gSel = "select.form-control.ng-pristine.ng-untouched.ng-valid.ng-not-empty";
 	
 	public VCFManagerPage(WebDriver driver) {
 		super(driver);
@@ -188,7 +193,25 @@ public class VCFManagerPage extends PageInfra {
 		setValue(driver.findElement(By.name(passField)),password);
 		String currState = driver.findElement(By.cssSelector(progressBar)).getText();
 		assertEquals(currState,"Fabric Setup");
-		
+		List <WebElement> elements = driver.findElements(By.cssSelector(advancedButtonSel));
+		for (WebElement row:elements) {
+			if(row.getText().equals("Advanced")) {
+				row.click();
+				break;
+			}
+		}
+		Thread.sleep(2000);
+		List <WebElement> dropdowns =driver.findElements(By.cssSelector(toggle40gSel));
+		for (WebElement row: dropdowns) {
+			if(row.getText().contains("True")) {
+				Select dropdown = new Select(row);
+				dropdown.selectByVisibleText("False");
+				break;
+			}
+		}
+		Thread.sleep(2000);
+		setValue(driver.findElement(By.cssSelector(gatewayIpSel)),"10.15.1.1");
+				
 		WebElement nextButton = driver.findElement(By.cssSelector(nextId));
 		nextButton.click();
 		Thread.sleep(2000); //Sleeping for the click to go through 

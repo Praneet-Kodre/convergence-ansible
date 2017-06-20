@@ -1,5 +1,5 @@
 #!/usr/bin/expect
-set timeout 240
+set timeout 300
 spawn ssh -l root smc-ext-12
 expect {
         "yes/no" {
