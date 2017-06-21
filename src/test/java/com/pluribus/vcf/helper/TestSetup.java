@@ -114,14 +114,14 @@ public class TestSetup {
 		Thread.sleep(30000);
 	}
    }
-   @Parameters({"vcfIp","browser","local","bsUserId","bsKey"}) 
+   @Parameters({"vcfIp","browser","local","bsUserId","bsKey","jenkins"}) 
    @BeforeClass(alwaysRun = true)
-   public void initDriver(String vcfIp, String browser, @Optional("0")String local,@Optional("pratikdam1")String bsUserId, @Optional("uZCXEzKXwgzgzMr3G7R6") String bsKey) throws Exception{
+   public void initDriver(String vcfIp, String browser, @Optional("0")String local,@Optional("pratikdam1")String bsUserId, @Optional("uZCXEzKXwgzgzMr3G7R6") String bsKey,@Optional("0")String jenkins) throws Exception{
 	   if(Integer.parseInt(local)==1) {
 		   startDriver(vcfIp,browser);
 	   }
 	   else {
-		   startDriver(vcfIp,browser,bsUserId,bsKey); //Call browserstack test session
+		   startDriver(vcfIp,browser,bsUserId,bsKey,Integer.parseInt(jenkins)); //Call browserstack test session
 	   }
    }
    
@@ -157,25 +157,37 @@ public class TestSetup {
 	   //TODO: ADD IE AND SAFARI TO THE LIST
    }
  
-    public void startDriver(String vcfIp,String browser,String bsUserId, String bsKey) throws Exception {
+    public void startDriver(String vcfIp,String browser,String bsUserId, String bsKey, int jenkins) throws Exception {
 		HashMap<String,String> bsLocalArgs = new HashMap<String,String>();
 		String sessionId = null;
 		String command = null;
+		String logFileName = "/tmp/browserstack/BSlogs.txt";
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMddhhmmss");
 	    String dateAsString = simpleDateFormat.format(new Date());
 	    String localId = "convergenceTest"+dateAsString;
-		bsLocalArgs.put("localIdentifier",localId);
-		bsLocalArgs.put("key",bsKey); //BrowserStack Key
-		bsLocal.start(bsLocalArgs);
+	    if(jenkins == 0) {
+			bsLocalArgs.put("-log-file", logFileName);
+			bsLocalArgs.put("localIdentifier",localId); //environment variable
+			bsLocalArgs.put("key",bsKey); //BrowserStack Key
+			bsLocalArgs.put("v", "true"); 
+			bsLocal.start(bsLocalArgs); 
+		}
 	    DesiredCapabilities caps = new DesiredCapabilities();
 		caps.setCapability("browser",browser);
 		caps.setCapability("build", "VCFC SmokeTest Cases");
 		caps.setCapability("acceptSslCerts","true");
-		caps.setCapability("browserstack.local", "true");
 		caps.setCapability("browserstack.debug","true");
 		caps.setCapability("browserstack.idleTimeout","150");
 		caps.setCapability("platform","ANY");
-		caps.setCapability("browserstack.localIdentifier",localId);
+		if(jenkins ==0) {
+			caps.setCapability("browserstack.local", "true");	
+			caps.setCapability("browserstack.localIdentifier",localId);
+		} else {
+			String browserstackLocal = System.getenv("BROWSERSTACK_LOCAL");
+			String browserstackLocalIdentifier = System.getenv("BROWSERSTACK_LOCAL_IDENTIFIER");
+			caps.setCapability("browserstack.local", browserstackLocal);
+			caps.setCapability("browserstack.localIdentifier", browserstackLocalIdentifier);
+		}
 		driver = new RemoteWebDriver(
 			      new URL("https://"+bsUserId+":"+bsKey+"@hub-cloud.browserstack.com/wd/hub"),
 			      caps
