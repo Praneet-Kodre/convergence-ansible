@@ -48,44 +48,17 @@ public class VcfMgr extends TestSetup{
 	    public void loginTest123(@Optional("test123")String password) {
 	        login.login(vcfUserName, password);
 	        login.waitForLogoutButton();
-	        assertEquals(getTitle(), "Pluribus Networks VCFcenter");
 	        home1.gotoVCFMgr();
-	        try {
-	        	vcfMgr1.delAllSeedsVcfMgr();
-	        } catch (Exception e) {}
 	 	}
-	
-	
-/*
-	@Parameters({"switchName", "password"})
-	@Test(groups={"smoke","regression"},dependsOnMethods={"logintoVcfMgr"},description="Add seed switch")
-	public void addSeedSwitchTest(String switchName,@Optional("test123") String password) throws Exception {
-		if(vcfMgr1.addSeedSwitch(switchName,password)) {
-			com.jcabi.log.Logger.info("vcfMgraddSeedSwitch","Configured and verified seed switch addition");
-		} else {
-			com.jcabi.log.Logger.error("cfMgraddSeedSwitch","Seed switch configuration failed");
-		}
-	}
-
-	@Parameters({"vcfIp"})
-	@Test(groups={"smoke","regression"},dependsOnMethods={"loginTest123"},description="Cleanup existing ansible config")
-	public void cleanZtpTest(String vcfIp) throws Exception {
-		vcfMgr1.delAllSeedsVcfMgr();
-		if(vcfMgr1.terminateAndCleanZtp(vcfIp)) {
-			com.jcabi.log.Logger.info("vcfMgrconfig","Terminated previous instances of ansible and cleaned ZTP");
-		} else {
-			com.jcabi.log.Logger.error("vcfMgrconfig","Terminating prev instance failed");
-		}
-		//home1.gotoVCFMgr();
-	}
-*/	
-	@Parameters({"hostFile", "csvFile", "password"})
+	 
+	@Parameters({"hostFile", "csvFile", "password","selectedPlaybook","gatewayIp"})
 	@Test(groups={"smoke","regression"},dependsOnMethods={"loginTest123"},description="Configure playbook 1")
-	public void vcfMgrConfig1(String hostFile, String csvFile, @Optional("test123") String password) throws Exception {
+	public void vcfMgrConfig1(String hostFile, String csvFile, @Optional("test123") String password, String selectedPlaybook, String gatewayIp) throws Exception {
+    	vcfMgr1.delAllSeedsVcfMgr();
 		File file1 = new File(hostFile);
 		int expNodeCount = 6;
 		if(file1.exists()) {
-			if(vcfMgr1.launchZTP(hostFile,csvFile,password,expNodeCount)) {
+			if(vcfMgr1.launchZTP(hostFile,csvFile,password,expNodeCount,selectedPlaybook,gatewayIp)) {
 				com.jcabi.log.Logger.info("vcfMgrconfig","Fabric creation playbook was configured successfully");
 			} else {
 				com.jcabi.log.Logger.error("vcfMgrconfig","Fabric creation playbook was not configured successfully");
@@ -94,18 +67,4 @@ public class VcfMgr extends TestSetup{
 			com.jcabi.log.Logger.error("vcfMgrconfig", "File doesn't exist");
 		}
 	}
-	/*
-	//SSH into server-ext-3a, invoke scrip
-	public void convTestScript(String serverName,String scriptName) {
-		Shell ss = new Shell.Verbose(
-	            new SSHByPassword(
-	            	serverName,
-	            	22,
-	                "root",
-	                "test123"
-	            )
-	        );
-		out1 = new Shell.Plain(ss).exec("cd /usr/test-scripts/pod/;");
-	}
-	*/
 }

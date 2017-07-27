@@ -18,9 +18,12 @@
     <parameter name="flowDuration" value = "5"></parameter>
     <parameter name="pcapToggleCount" value = "3"></parameter>
     <!-- VCF Manager parameters -->
+    <parameter name="gatewayIp" value="10.9.9.1"></parameter> 
     <parameter name="hostFile" value="src/test/resources/ans_hosts"></parameter>
     <parameter name="csvFile" value="src/test/resources/vrrp_l2.csv"></parameter>
-       <!-- NOTE: Additional optional parameters are: 
+    <parameter name="selectedPlaybook" value="L2 VRRP"></parameter> <!-- Other values are "L3 VRRP BGP" "L3 VRRP OSPF"-->
+    
+    <!-- NOTE: Additional optional parameters are: 
     	<parameter name="dataNodeHost" value="10.9.8.85"></parameter>
     	<parameter name = "password" value="value_to_be_set_for_vcfc_instance"></parameter>
     	<parameter name= "bsUserId" value="BS_uid"></parameter>

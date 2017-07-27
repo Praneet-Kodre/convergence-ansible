@@ -16,6 +16,7 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.LocalFileDetector;
 import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.FindBy;
@@ -40,8 +41,8 @@ public class VCFManagerPage extends PageInfra {
 	
 	String nextButtonId = "button[type=submit]";
 	String fileUploadId = "hostFile";
-	String csvUploadId = "csvFile";
-	String ztpMenuWindow = "div.form-horizontal.inner-dialog-container.ZTPDialog.ng-scope";
+	String csvUploadId = "csvFileForPlayBook";
+	String ztpMenuWindow = "div.ngdialog-content";
 	String ztpIconId = "button.icon-ztp";
 	String addSeedId = "button.icon-add";
 	String backButton = "button.btn.btn-info";
@@ -55,19 +56,23 @@ public class VCFManagerPage extends PageInfra {
 	String devDiscoveryFields = "div.ui-grid-cell-contents.ng-binding.ng-scope";
 	String nextId = "button[class='btn btn-success'][type=submit]";
 	String verifyNextId = "button[class='btn btn-success'][type=button]";
-	String vrrpConfig = "ul.ulPlayBook li.ng-scope";
+	String playbookLabel = "div.col-sm-4.ng-scope span";
+	String playbookImg = "img[alt='";  
+    String playbookLink = "div[ref='";
 	String closeButton = "button.button";
 	String fabricNodeImage = "image.fabricNode";
 	String progressBar = "div.progress-bar.ng-isolate-scope.progress-bar-info span";
 	String deleteIcon = "button.icon-delete.ng-scope";
 	String confirmDelPopup = "div.inner-dialog-container";
 	String vrrpNextButton = "button.btn.btn-success[type=submit][ng-show]";
-	String fabricNameFieldSel = "input[class='form-control ng-pristine ng-untouched ng-valid ng-not-empty']";
-	String advancedButtonSel = "button.btn.btn-success[type='button']";
+	String fabricNameFieldSel = "input.form-control.ng-pristine.ng-untouched.ng-valid.ng-not-empty.ng-valid-required.ng-valid-pattern[value=gui-fabric]";
+	String advancedButtonSel = "button[type='button'][uib-tooltip='Maximize Advanced Settings']";
 	String gatewayIpSel = "input.form-control.ng-pristine.ng-untouched.ng-valid.ng-not-empty.ng-valid-required.ng-valid-pattern[value='10.9.9.1']";
 	String setupTabSel = "uib-tab-heading.ng-scope";
-	String toggle40gSel = "select.form-control.ng-pristine.ng-untouched.ng-valid.ng-not-empty";
-	
+	String toggle40gSel = "select.form-control.ng-pristine.ng-untouched.ng-valid.ng-not-empty[value='True']";
+	String playbookCompletionMessageId = "success-message-dialog";
+	String resetFabricCheckBox = "input[type='checkbox']";
+
 	public VCFManagerPage(WebDriver driver) {
 		super(driver);
 	}
@@ -158,7 +163,7 @@ public class VCFManagerPage extends PageInfra {
 						break;
 					}
 				}
-			Thread.sleep(2000); //waiting for success message to go away
+			Thread.sleep(10000); //waiting for success message to go away
 			}
 		}
 		waitForElementToClick(By.cssSelector(backButton),100);
@@ -166,7 +171,7 @@ public class VCFManagerPage extends PageInfra {
 		Thread.sleep(5000);
 	}
 	
-	public boolean launchZTP(String hostFile, String csvFile, String password, int expNodeCount) throws Exception {
+	public boolean launchZTP(String hostFile, String csvFile, String password, int expNodeCount, String playbookName, String gatewayIp) throws Exception {
 		boolean status = false;
 		waitForElementVisibility(addFabric,100);
 		waitForElementToClick(By.cssSelector(backButton),100);
@@ -176,7 +181,9 @@ public class VCFManagerPage extends PageInfra {
 			Thread.sleep(5000);
 		}
 		waitForElementToClick(By.cssSelector(ztpIconId),100);
-		driver.findElement(By.cssSelector(ztpIconId)).click();
+		retryingFindClick(driver.findElement(By.cssSelector(ztpIconId)));
+		waitForElementToClick(By.cssSelector(successButtonId),100);
+		driver.findElement(By.cssSelector(successButtonId)).click();
 		//Thread.sleep(5000); //waiting for click to go through
 		while(!isElementActive(ztpMenuWindow)) {
 			Thread.sleep(5000);
@@ -191,15 +198,10 @@ public class VCFManagerPage extends PageInfra {
 		element.sendKeys(hostFile);
 		setValue(driver.findElement(By.name(uNameField)),"network-admin");
 		setValue(driver.findElement(By.name(passField)),password);
-		String currState = driver.findElement(By.cssSelector(progressBar)).getText();
-		assertEquals(currState,"Fabric Setup");
+
 		List <WebElement> elements = driver.findElements(By.cssSelector(advancedButtonSel));
-		for (WebElement row:elements) {
-			if(row.getText().equals("Advanced")) {
-				row.click();
-				break;
-			}
-		}
+		elements.get(0).click();
+		
 		Thread.sleep(2000);
 		List <WebElement> dropdowns =driver.findElements(By.cssSelector(toggle40gSel));
 		for (WebElement row: dropdowns) {
@@ -210,8 +212,13 @@ public class VCFManagerPage extends PageInfra {
 			}
 		}
 		Thread.sleep(2000);
-		setValue(driver.findElement(By.cssSelector(gatewayIpSel)),"10.15.1.1");
-				
+		setValue(driver.findElement(By.cssSelector(gatewayIpSel)),gatewayIp);
+		List <WebElement> rstFabric = driver.findElements(By.cssSelector(resetFabricCheckBox));
+		for (WebElement row: rstFabric) {
+			if (!row.isSelected()){
+					row.click();
+			}
+		}		
 		WebElement nextButton = driver.findElement(By.cssSelector(nextId));
 		nextButton.click();
 		Thread.sleep(2000); //Sleeping for the click to go through 
@@ -223,14 +230,14 @@ public class VCFManagerPage extends PageInfra {
 		
 	    int i = 0;
 		//Sleep for fabric provisioning
-		while(i < 10) {
-				if(driver.findElement(By.cssSelector(progressBar)).getText().equalsIgnoreCase("Provisioning Fabric")) {
-					com.jcabi.log.Logger.info("playbookConfig","Playbook still being configured");
-					Thread.sleep(120000);
-					i++;
-				} else break;
-		}
-		
+	    while(i < 100) {
+			if((driver.findElement(By.cssSelector(progressBar)).getText().equalsIgnoreCase("Fabric Resetting"))||(driver.findElement(By.cssSelector(progressBar)).getText().equalsIgnoreCase("Provisioning Fabric"))) {
+				com.jcabi.log.Logger.info("playbookConfig","Fabric provisioning being setup");
+				Thread.sleep(120000);
+				i++;
+			} else break;
+	    }
+	
 		//Check status of fabric upload
 		List <WebElement> statusTabs = driver.findElements(By.cssSelector(progressBar));
 		status = false;
@@ -251,15 +258,21 @@ public class VCFManagerPage extends PageInfra {
         waitForElementToClick(By.cssSelector(verifyNextId),100);
         nextButton = driver.findElement(By.cssSelector(verifyNextId));
         nextButton.click();
+        
         //Thread.sleep(2000);
-        while(!isElementActive(vrrpConfig)) {
+        while(!isElementActive(playbookLabel)) {
         	Thread.sleep(2000);
         }
-        //VRRP configuration
-		waitForElementToClick(By.cssSelector(vrrpConfig),100);
-		retryingFindClick(driver.findElement(By.cssSelector(vrrpConfig)));
-		//driver.findElement(By.cssSelector(vrrpConfig)).click();
-		Thread.sleep(5000);
+        
+      //Select appropriate playbook
+        Actions action = new Actions(driver);
+        action.moveToElement(driver.findElement(By.cssSelector(playbookImg+playbookName+"']"))).perform();
+        WebElement subElement = driver.findElement(By.cssSelector(playbookLink+playbookName+"']"));
+        action.moveToElement(subElement);
+        action.click();
+        action.perform();
+        
+        Thread.sleep(5000);
 		element = driver.findElement(By.id(csvUploadId));
 		((RemoteWebElement) element).setFileDetector(new LocalFileDetector());
 		element.sendKeys(csvFile);
@@ -268,11 +281,20 @@ public class VCFManagerPage extends PageInfra {
 		nextButton.click();
 		Thread.sleep(2000);
 		i = 0;
+		/*
+		while((i<30) && (!isElementActive(playbookCompletionMessage))) {
+			Thread.sleep(100000);
+			if(isElementActive(playbookCompletionMessage)) break;
+			i++;
+		}
+		*/
 		while ((i<30) && (!isElementActive(closeButton))) {
 			Thread.sleep(100000);
+			com.jcabi.log.Logger.info("playbookConfig","playbook config ended with message"+ driver.findElement(By.id(playbookCompletionMessageId)).getText());
 			if(isElementActive(closeButton)) break;
 			i++;
 		}
+		
 		waitForElementToClick(By.cssSelector(fabricNodeImage),100);
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.MILLISECONDS);
 		int fabricNodeCount = driver.findElements(By.cssSelector(fabricNodeImage)).size();
