@@ -1,0 +1,5 @@
+#VLANId, VRRP IP/Mask, Switch1 name, Switch2 name, VRRP ID, Active switch name
+100, 172.168.100.0/24, gui-leaf1, gui-leaf2, 19, gui-leaf1
+101, 172.168.101.0/24, gui-leaf3, gui-leaf4, 19, gui-leaf3
+102, 172.168.102.0/24, gui-leaf1, gui-leaf2, 19, gui-leaf1
+104, 172.168.104.0/24, gui-leaf3, gui-leaf4, 19, gui-leaf3
