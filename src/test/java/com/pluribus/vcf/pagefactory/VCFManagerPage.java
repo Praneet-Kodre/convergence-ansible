@@ -72,7 +72,10 @@ public class VCFManagerPage extends PageInfra {
 	String toggle40gSel = "select.form-control.ng-pristine.ng-untouched.ng-valid.ng-not-empty[value='True']";
 	String playbookCompletionMessageId = "success-message-dialog";
 	String resetFabricCheckBox = "input[type='checkbox']";
-
+	String errorMsg = "div.inner-dialog-container.panel.panel-danger";
+	String successMsg = "div#success-message-dialog div.panel-body"; 
+			//"div.inner-dialog-container.success-container div";
+	
 	public VCFManagerPage(WebDriver driver) {
 		super(driver);
 	}
@@ -151,7 +154,7 @@ public class VCFManagerPage extends PageInfra {
 		addFabric.click();
 		Thread.sleep(10000);
 		boolean status = false;
-		if(isElementActive(deleteIcon)) {
+		if(isElementActive(By.cssSelector(deleteIcon))) {
 			List <WebElement> delIconList = driver.findElements(By.cssSelector(deleteIcon)); 
 			for (WebElement row : delIconList) {
 				row.click();
@@ -177,7 +180,7 @@ public class VCFManagerPage extends PageInfra {
 		waitForElementToClick(By.cssSelector(backButton),100);
 		addFabric.click();
 		//Thread.sleep(5000);	//waiting for click to go through. 
-		while(!isElementActive(ztpIconId)) {
+		while(!isElementActive(By.cssSelector(ztpIconId))) {
 			Thread.sleep(5000);
 		}
 		waitForElementToClick(By.cssSelector(ztpIconId),100);
@@ -185,7 +188,7 @@ public class VCFManagerPage extends PageInfra {
 		waitForElementToClick(By.cssSelector(successButtonId),100);
 		driver.findElement(By.cssSelector(successButtonId)).click();
 		//Thread.sleep(5000); //waiting for click to go through
-		while(!isElementActive(ztpMenuWindow)) {
+		while(!isElementActive(By.cssSelector(ztpMenuWindow))) {
 			Thread.sleep(5000);
 		}
 		waitForElementToClick(By.cssSelector(ztpMenuWindow),100);
@@ -223,8 +226,9 @@ public class VCFManagerPage extends PageInfra {
 		nextButton.click();
 		Thread.sleep(2000); //Sleeping for the click to go through 
 		
-		if(isElementActive(closeButton)) {
-			com.jcabi.log.Logger.info("playbookConfig","Error configuring playbook. Please try again..");
+		if(isElementActive(By.cssSelector(errorMsg))) {
+			String message = driver.findElement(By.cssSelector(errorMsg)).getText();
+			com.jcabi.log.Logger.error("playbookConfig failed with error: ",message);
 			return false;
 		}
 		
@@ -232,35 +236,48 @@ public class VCFManagerPage extends PageInfra {
 		//Sleep for fabric provisioning
 	    while(i < 100) {
 			if((driver.findElement(By.cssSelector(progressBar)).getText().equalsIgnoreCase("Fabric Resetting"))||(driver.findElement(By.cssSelector(progressBar)).getText().equalsIgnoreCase("Provisioning Fabric"))) {
-				com.jcabi.log.Logger.info("playbookConfig","Fabric provisioning being setup");
+				com.jcabi.log.Logger.info("playbookConfig","Fabric reset/discovery in progress");
 				Thread.sleep(120000);
 				i++;
+				if(isElementActive(By.cssSelector(errorMsg))) {
+					String message = driver.findElement(By.cssSelector(errorMsg)).getText();
+					com.jcabi.log.Logger.error("playbookConfig failed with error: ",message);
+					return false;
+				}
 			} else break;
 	    }
 	
 		//Check status of fabric upload
 		List <WebElement> statusTabs = driver.findElements(By.cssSelector(progressBar));
 		status = false;
-		if((statusTabs.get(0).getText().contains("Fabric configured"))&&(statusTabs.get(1).getText().contains("Verify Topology"))) {
-			status = true;	
+		
+		//"Verify Topology"
+		while(i < 100) {
+			if((statusTabs.get(0).getText().contains("Fabric configured"))&&(statusTabs.get(1).getText().contains("Verify Topology"))) {
+				Thread.sleep(10000);
+				status = true;
+				break;
+			}
 		}
+		
 		if(status == false) {
 			com.jcabi.log.Logger.error("playbookConfig","Fabric configured message not found. Playbook configuration timed out");
 			return false;
 		}
+		
 		 //Click on Next
         i = 0;
-        while ((i<5) && (!isElementActive(verifyNextId))) {
+        while ((i<5) && (!isElementActive(By.cssSelector(verifyNextId)))) {
                 Thread.sleep(100000);
-                if(isElementActive(verifyNextId)) break;
+                if(isElementActive(By.cssSelector(verifyNextId))) break;
                 i++;
         }
         waitForElementToClick(By.cssSelector(verifyNextId),100);
         nextButton = driver.findElement(By.cssSelector(verifyNextId));
         nextButton.click();
         
-        //Thread.sleep(2000);
-        while(!isElementActive(playbookLabel)) {
+        //Thread.sleep(2000);	
+        while(!isElementActive(By.cssSelector(playbookLabel))) {
         	Thread.sleep(2000);
         }
         
@@ -272,27 +289,47 @@ public class VCFManagerPage extends PageInfra {
         action.click();
         action.perform();
         
-        Thread.sleep(5000);
-		element = driver.findElement(By.id(csvUploadId));
-		((RemoteWebElement) element).setFileDetector(new LocalFileDetector());
-		element.sendKeys(csvFile);
-		waitForElementToClick(By.cssSelector(vrrpNextButton),100);
-		nextButton = driver.findElement(By.cssSelector(vrrpNextButton));
-		nextButton.click();
-		Thread.sleep(2000);
-		i = 0;
+        Thread.sleep(15000);
+        waitForElementToClick(By.id(csvUploadId),100);
+        element = driver.findElement(By.id(csvUploadId));
+        ((RemoteWebElement) element).setFileDetector(new LocalFileDetector());
+        element.sendKeys(csvFile);
+        waitForElementToClick(By.cssSelector(vrrpNextButton),100);
+        nextButton = driver.findElement(By.cssSelector(vrrpNextButton));
+        retryingFindClick(nextButton);
+        Thread.sleep(2000);
+        
 		/*
 		while((i<30) && (!isElementActive(playbookCompletionMessage))) {
 			Thread.sleep(100000);
 			if(isElementActive(playbookCompletionMessage)) break;
 			i++;
 		}
-		*/
+		
 		while ((i<30) && (!isElementActive(closeButton))) {
 			Thread.sleep(100000);
 			com.jcabi.log.Logger.info("playbookConfig","playbook config ended with message"+ driver.findElement(By.id(playbookCompletionMessageId)).getText());
 			if(isElementActive(closeButton)) break;
 			i++;
+		}
+		*/
+		
+		boolean successMessageFound = false;
+		i = 0;
+		while((i<100)&&(!isElementActive(By.cssSelector(successMsg)))) {
+			Thread.sleep(100000);
+			com.jcabi.log.Logger.info("playbookConfig","Waiting for playbook "+playbookName+" execution to be completed");
+			if(isElementActive(By.cssSelector(successMsg))) {
+				String message = driver.findElement(By.cssSelector(successMsg)).getText();
+				com.jcabi.log.Logger.info("playbookConfig",message);
+				successMessageFound = true;
+				break;
+			}
+			i++;
+		}
+		if(successMessageFound == false) {
+			com.jcabi.log.Logger.error("playbookConfig","Playbook "+playbookName+" did not complete. Success message was not found");
+			return successMessageFound;
 		}
 		
 		waitForElementToClick(By.cssSelector(fabricNodeImage),100);
@@ -304,10 +341,12 @@ public class VCFManagerPage extends PageInfra {
 		return status;
 	}
 	
-	public boolean isElementActive(String el) {
+	public boolean isElementActive(By by) {
 		boolean status = false;
+		
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.MILLISECONDS);
-		boolean exists = (driver.findElements(By.cssSelector(el)).size() != 0);
+		boolean exists = (driver.findElements(by).size() != 0);
+		
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 		return exists;
 	}

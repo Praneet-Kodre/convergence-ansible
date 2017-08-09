@@ -37,17 +37,19 @@ public class VcfMgr extends TestSetup{
 	
 	@Parameters({"password"})
     @Test(groups = {"smoke","regression"}, description = "Login to VCF as admin  and Change Password")
-    public void loginAdmin(@Optional("test123")String password) {
+    public void loginAdmin(@Optional("test123")String password) throws Exception{
         login.firstlogin(vcfUserName,password);
         login.waitForLogoutButton();
         login.logout();
+        Thread.sleep(30000);
     }
 	
 	 @Parameters({"password"})  
-	    @Test(groups = {"smoke","regression"},dependsOnMethods = {"loginAdmin"},description = "Login to VCF as test123 After Password Change")
-	    public void loginTest123(@Optional("test123")String password) {
+	    @Test(groups = {"smoke","regression"},dependsOnMethods={"loginAdmin"},description = "Login to VCF as test123 After Password Change")
+	    public void loginTest123(@Optional("test123")String password) throws Exception{
 	        login.login(vcfUserName, password);
 	        login.waitForLogoutButton();
+	        Thread.sleep(30000);
 	        home1.gotoVCFMgr();
 	 	}
 	 
