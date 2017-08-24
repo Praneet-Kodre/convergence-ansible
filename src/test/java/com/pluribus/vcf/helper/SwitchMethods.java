@@ -33,6 +33,17 @@ public class SwitchMethods {
 			Logger.error(e, "Tomcat restart failed");
 		}
 	}
+	
+	public void showRunningConfig() {
+		Shell session = getSwitchSession();
+    	String out1 = null;
+    	try {
+    		out1 = new Shell.Plain(session).exec("cli --no-login-prompt --quiet -c \"show running-config\"");
+    	} catch (IOException e) {
+			System.out.println(e.toString());
+		}
+	}
+	
 	public Shell getSwitchSession() {
 		Shell serverSession = null;
 		try {
