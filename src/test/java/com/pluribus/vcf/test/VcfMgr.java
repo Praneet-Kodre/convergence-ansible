@@ -14,7 +14,10 @@ import static org.testng.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
@@ -30,29 +33,30 @@ public class VcfMgr extends TestSetup{
 	private String vcfUserName = "admin";
 	
 	@BeforeClass(alwaysRun = true)
-	public void init(String switchIp) throws Exception{
+	public void init() throws Exception{
 		login = new VCFLoginPage(getDriver());
 		home1 = new VCFHomePage(getDriver());
 		vcfMgr1 = new VCFManagerPage(getDriver());
 	}
 	
-	
+	/*
 	@Parameters({"password"})
     @Test(groups = {"smoke","regression"}, description = "Login to VCF as admin  and Change Password")
     public void loginAdmin(@Optional("test123")String password) throws Exception{
         login.firstlogin(vcfUserName,password);
+        Thread.sleep(5000);
         login.waitForLogoutButton();
         login.logout();
-        Thread.sleep(30000);
+        Thread.sleep(15000);
     }
-	
-	 
+	 */
 	 @Parameters({"password"})  
-	 @Test(groups = {"smoke","regression"},dependsOnMethods={"loginAdmin"},description = "Login to VCF as test123")
+	 @Test(groups = {"smoke","regression"},description = "Login to VCF as test123")
 	 public void loginTest123(@Optional("test123")String password) throws Exception{
 	     login.login(vcfUserName, password);
+	     Thread.sleep(5000);
 	     login.waitForLogoutButton();
-	     Thread.sleep(30000);
+	     Thread.sleep(15000);
 	     home1.gotoVCFMgr();
 	 }
 	 

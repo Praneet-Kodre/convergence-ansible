@@ -4,12 +4,13 @@
 <test name="Test">
     <!-- VCF Manager parameters -->
     <parameter name="switchIp" value="10.15.6.126"></parameter>
-    <parameter name="gatewayIp" value="10.15.1.1"></parameter> 
+    <parameter name="gatewayIp" value="10.9.9.1"></parameter> 
     <parameter name="hostFile" value="src/test/resources/ans_hosts_onvltb"></parameter>
     <parameter name="csvFile" value="src/test/resources/vrrp_l2_onvltb.csv"></parameter>
+    <!--parameter name="csvFile" value="src/test/resources/vrrp_onvl_tb_2vlans.csv"></parameter-->
     <parameter name="selectedPlaybook" value="L2 VRRP"></parameter> <!-- Other values are "L3 VRRP BGP" "L3 VRRP OSPF"-->
     <!--parameter name="hostFile" value="src/test/resources/ans_hosts"></parameter-->
-    <!--parameter name="csvFile" value="src/test/resources/vrrp_l2.csv"></parameter-->
+    <!--parameter name="csvFile" value="src/test/resources/vrrp_l2_64vlans.csv"></parameter-->
     <!-- NOTE: Additional optional parameters are: 
     	<parameter name="dataNodeHost" value="10.9.8.85"></parameter>
     	<parameter name = "password" value="value_to_be_set_for_vcfc_instance"></parameter>

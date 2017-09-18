@@ -1,6 +1,8 @@
 package com.pluribus.vcf.pagefactory;
 
 import com.jcabi.log.Logger;
+import com.jcabi.ssh.SSHByPassword;
+import com.jcabi.ssh.Shell;
 import com.pluribus.vcf.helper.PageInfra;
 
 import static org.testng.Assert.assertEquals;
@@ -59,13 +61,14 @@ public class VCFManagerPage extends PageInfra {
 	String playbookLabel = "div.col-sm-4.ng-scope span";
 	String playbookImg = "img[alt='";  
     String playbookLink = "div[ref='";
-	String deleteButton = "button.button";
+	String deleteButton = "button.button[ng-click='confirm(1)']";
 	String closeButton = "button.button[ng-click='closeThisDialog()']";
 	String playbookCloseButton = "button.button[ng-click='closeAllDialog()']";
 	String fabricNodeImage = "image.fabricNode";
 	String progressBar = "div.progress-bar.ng-isolate-scope.progress-bar-info span";
 	String deleteIcon = "button.icon-delete.ng-scope";
-	String confirmDelPopup = "div.inner-dialog-container";
+	//String confirmDelPopup = "div.inner-dialog-container";
+	String confirmDelPopup = "div.ngdialog-content";
 	String vrrpNextButton = "button.btn.btn-success[type=submit][ng-show]";
 	String fabricNameFieldSel = "input.form-control.ng-pristine.ng-untouched.ng-valid.ng-not-empty.ng-valid-required.ng-valid-pattern[value=gui-fabric]";
 	String advancedButtonSel = "button[type='button'][uib-tooltip='Maximize Advanced Settings']";
@@ -175,6 +178,37 @@ public class VCFManagerPage extends PageInfra {
 		Thread.sleep(5000);
 	}
 	
+	//ara ports: 104,5
+		//eri ports: 101,2
+	public void doSpineWorkaround() throws Exception{
+		Shell spineSession = null;
+		String switchUser = "root";
+		String switchPwd = "test123";
+		String out1 = null;
+			
+		spineSession = new Shell.Verbose(
+			new SSHByPassword(
+				"10.15.6.126",
+				 22,
+				 switchUser,
+				 switchPwd
+				)
+			);
+			out1 = new Shell.Plain(spineSession).exec("cli --no-login-prompt --quiet -c \"modify port-config port 104 autoneg \"");
+			out1 = new Shell.Plain(spineSession).exec("cli --no-login-prompt --quiet -c \"modify port-config port 5 autoneg \"");
+					
+			spineSession = new Shell.Verbose(
+				 new SSHByPassword(
+						"10.15.6.119",
+						22,
+						switchUser,
+						switchPwd
+					)
+				);
+				out1 = new Shell.Plain(spineSession).exec("cli --no-login-prompt --quiet -c \"modify port-config port 101 autoneg \"");
+				out1 = new Shell.Plain(spineSession).exec("cli --no-login-prompt --quiet -c \"modify port-config port 2 autoneg \""); 
+	}
+	
 	public boolean launchZTP(String hostFile, String csvFile, String password, String playbookName, String gatewayIp, int resetFabric) throws Exception {
 		boolean status = false;
 		waitForElementVisibility(addFabric,100);
@@ -275,7 +309,10 @@ public class VCFManagerPage extends PageInfra {
 		} else {
 			com.jcabi.log.Logger.error("playbookConfig","Status bar messages are incorrect"+statusTabs.get(0).getText()+" "+statusTabs.get(1).getText());
 		}
-			
+		
+		//Running temporary fix for spines in convergence setup
+		doSpineWorkaround();	
+		
 		 //Click on Next
         i = 0;
         while ((i<5) && (!isElementActive(By.cssSelector(verifyNextId)))) {
@@ -292,7 +329,7 @@ public class VCFManagerPage extends PageInfra {
         	Thread.sleep(2000);
         }
         
-      //Select appropriate playbook
+        //Select appropriate playbook
         Actions action = new Actions(driver);
         action.moveToElement(driver.findElement(By.cssSelector(playbookImg+playbookName+"']"))).perform();
         WebElement subElement = driver.findElement(By.cssSelector(playbookLink+playbookName+"']"));

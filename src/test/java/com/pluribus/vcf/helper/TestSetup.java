@@ -81,6 +81,45 @@ public class TestSetup {
 	   }
    }
    
+   @BeforeSuite(alwaysRun = true)
+   @Parameters({"resetSwitch"})
+   //Run ansible reset switch script
+ 	public void resetSwitchAnsible (@Optional("1") String resetSwitch) throws Exception{
+ 		if(Integer.parseInt(resetSwitch) == 1) {
+ 			String out1;
+ 			StringBuffer output = null;
+ 		
+ 			String[] command = {"src/test/resources/resetSwitch.expect"};
+ 	        ProcessBuilder probuilder = new ProcessBuilder( command );
+
+ 	        //You can set up your work directory
+ 	        probuilder.directory(new File(System.getProperty("user.dir")));
+ 	        Process process = probuilder.start();
+ 	        
+ 	        //Read out dir output
+ 	        InputStream is = process.getInputStream();
+ 	        InputStreamReader isr = new InputStreamReader(is);
+ 	        BufferedReader br = new BufferedReader(isr);
+ 	        String line;
+ 	        System.out.printf("Output of running %s is:\n",
+ 	                Arrays.toString(command));
+ 	        while ((line = br.readLine()) != null) {
+ 	            System.out.println(line);
+ 	        }
+ 	        
+ 	        //Wait to get exit value
+ 	        try {
+ 	            int exitValue = process.waitFor();
+ 	            System.out.println("\n\nExit Value is " + exitValue);
+ 	        } catch (InterruptedException e) {
+ 	            // TODO Auto-generated catch block
+ 	            e.printStackTrace();
+ 	        }
+ 		}
+ 		return;
+ 	}
+
+   
    @Parameters({"vcfIp","clean"})
    @BeforeTest(alwaysRun = true)
    public void cleanLogs(String vcfIp,@Optional("1")String clean) throws IOException,InterruptedException {
