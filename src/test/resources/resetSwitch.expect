@@ -1,0 +1,21 @@
+#!/usr/bin/expect
+set timeout 240
+spawn ssh -l root smc-ext-12
+expect {
+        "yes/no" {
+                        send "yes\r"
+                        exp_continue
+                }
+                "ssword:" {
+                        send "test123\r"
+                }
+}
+expect "root@smc-ext-12:"
+send "cd /etc/ansible/pluribus-ansible/ansible/playbooks/advance/playbooks\r"
+expect "root@smc-ext-12:"
+send "ansible-playbook -i hosts -vv reset.yml --ask-pass\r"
+expect "SSH password:"
+send "test123\r"
+expect "root@smc-ext-12:/etc/ansible/pluribus-ansible/ansible/playbooks/advance/playbooks#"
+set output $expect_out(buffer)
+puts "$output\n"

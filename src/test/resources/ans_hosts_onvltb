@@ -1,0 +1,9 @@
+[spine]
+ara-ext-spine1 ansible_host=10.15.6.126 ansible_user="{{ SSH_USER }}" ansible_ssh_pass="{{ SSH_PASS }}" 
+eri-ext-spine2 ansible_host=10.15.6.119 ansible_user="{{ SSH_USER }}" ansible_ssh_pass="{{ SSH_PASS }}" 
+
+[leaf]
+dorado-ext-leaf1 ansible_host=10.15.6.95 ansible_user="{{ SSH_USER }}" ansible_ssh_pass="{{ SSH_PASS }}" 
+aquarius-ext-leaf2 ansible_host=10.15.6.125 ansible_user="{{ SSH_USER }}" ansible_ssh_pass="{{ SSH_PASS }}"
+norma-ext-leaf3 ansible_host=10.15.6.117 ansible_user="{{ SSH_USER }}" ansible_ssh_pass="{{ SSH_PASS }}"
+pegasus-ext-leaf4 ansible_host=10.15.3.232 ansible_user="{{ SSH_USER }}" ansible_ssh_pass="{{ SSH_PASS }}"
