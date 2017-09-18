@@ -39,7 +39,6 @@ public class VcfMgr extends TestSetup{
 		vcfMgr1 = new VCFManagerPage(getDriver());
 	}
 	
-	/*
 	@Parameters({"password"})
     @Test(groups = {"smoke","regression"}, description = "Login to VCF as admin  and Change Password")
     public void loginAdmin(@Optional("test123")String password) throws Exception{
@@ -49,10 +48,10 @@ public class VcfMgr extends TestSetup{
         login.logout();
         Thread.sleep(15000);
     }
-	 */
-	 @Parameters({"password"})  
-	 @Test(groups = {"smoke","regression"},description = "Login to VCF as test123")
-	 public void loginTest123(@Optional("test123")String password) throws Exception{
+	
+	@Parameters({"password"})  
+	@Test(groups = {"smoke","regression"},description = "Login to VCF as test123")
+	public void loginTest123(@Optional("test123")String password) throws Exception{
 	     login.login(vcfUserName, password);
 	     Thread.sleep(5000);
 	     login.waitForLogoutButton();
