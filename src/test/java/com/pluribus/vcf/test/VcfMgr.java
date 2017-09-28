@@ -57,7 +57,7 @@ public class VcfMgr extends TestSetup{
 	}
 	 
 	@Parameters({"hostFile", "csvFile", "password","selectedPlaybook","gatewayIp","resetFabric"})
-	@Test(groups={"smoke","regression"},dependsOnMethods={"loginTest123"},description="Configure playbook 1")
+	@Test(groups={"smoke","regression"},dependsOnMethods={"loginAsTest123"},description="Configure playbook 1")
 	public void vcfMgrConfig1(String hostFile, String csvFile, @Optional("test123") String password, String selectedPlaybook, String gatewayIp, @Optional("1")String resetFabric) throws Exception {
     	vcfMgr1.delAllSeedsVcfMgr();
 		File file1 = new File(hostFile);
