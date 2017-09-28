@@ -39,25 +39,22 @@ public class VcfMgr extends TestSetup{
 		vcfMgr1 = new VCFManagerPage(getDriver());
 	}
 	
-	@Parameters({"password"})
-    @Test(groups = {"smoke","regression"}, description = "Login to VCF as admin  and Change Password")
-    public void loginAdmin(@Optional("test123")String password) throws Exception{
-        login.firstlogin(vcfUserName,password);
-        Thread.sleep(5000);
-        login.waitForLogoutButton();
-        login.logout();
-        Thread.sleep(15000);
-    }
-	
-	@Parameters({"password"})  
-	@Test(groups = {"smoke","regression"},description = "Login to VCF as test123")
-	public void loginTest123(@Optional("test123")String password) throws Exception{
-	     login.login(vcfUserName, password);
-	     Thread.sleep(5000);
-	     login.waitForLogoutButton();
-	     Thread.sleep(15000);
-	     home1.gotoVCFMgr();
-	 }
+	@Parameters({ "password" })
+	@Test(groups = { "smoke", "regression" }, description = "Login to VCF as admin  and Change Password")
+	public void loginAsAdmin(@Optional("test123") String password) throws Exception {
+		login.firstlogin(vcfUserName, password);
+		login.waitForLogoutButton();
+		Thread.sleep(30000);
+		login.logout();
+		Thread.sleep(60000);
+	}
+
+	@Parameters({ "password" })
+	@Test(groups = { "smoke", "regression" }, description = "Login to VCF as test123 After Password Change")
+	public void loginAsTest123(@Optional("test123") String password) throws Exception {
+		login.login(vcfUserName, password);
+		login.waitForLogoutButton();
+	}
 	 
 	@Parameters({"hostFile", "csvFile", "password","selectedPlaybook","gatewayIp","resetFabric"})
 	@Test(groups={"smoke","regression"},dependsOnMethods={"loginTest123"},description="Configure playbook 1")
